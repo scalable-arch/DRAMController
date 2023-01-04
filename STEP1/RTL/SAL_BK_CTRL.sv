@@ -244,5 +244,4 @@ module SAL_BK_CTRL
         .is_zero_o                  (is_t_wtr_met)
     );
 
-
 endmodule // SAL_BK_CTRL

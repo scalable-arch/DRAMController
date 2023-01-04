@@ -64,7 +64,7 @@
 `define T_WTP_WIDTH                             4
 `define T_WTP_VALUE_M1                          4'b1000     // FIXME
 `define ROW_OPEN_WIDTH                          6
-`define ROW_OPEN_CNT                            63
+`define ROW_OPEN_CNT                            31
 
 `define T_RRD_WIDTH                             4
 `define T_RRD_VALUE_M1                          (`ROUND_UP(TRRD)-1)

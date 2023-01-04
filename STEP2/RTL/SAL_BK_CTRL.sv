@@ -11,7 +11,7 @@ module SAL_BK_CTRL
     TIMING_IF.MON               timing_if,
 
     // request from the address decoder
-    BK_REQ_IF.DST               bk_req_if,
+    REQ_IF.DST                  req_if,
     // scheduling interface
     SCHED_IF.SRC                sched_if,
 
@@ -55,7 +55,7 @@ module SAL_BK_CTRL
         state_n                     = state;
 
         ref_gnt_o                   = 1'b0;
-        bk_req_if.ready             = 1'b0;
+        req_if.ready                = 1'b0;
 
         sched_if.act_gnt            = 1'b0;
         sched_if.rd_gnt             = 1'b0;
@@ -76,38 +76,39 @@ module SAL_BK_CTRL
                         sched_if.ref_gnt            = 1'b1;
                         ref_gnt_o                   = 1'b1;
                     end
-                    else if (bk_req_if.valid) begin    // a new request came
+                    else if (req_if.valid) begin    // a new request came
                         // ACTIVATE command
                         sched_if.act_gnt            = 1'b1;
-                        sched_if.ra                 = bk_req_if.ra;
+                        sched_if.ra                 = req_if.ra;
 
-                        cur_ra_n                    = bk_req_if.ra;
+                        cur_ra_n                    = req_if.ra;
                         state_n                     = S_OPEN;
                     end
                 end
             end
             S_OPEN: begin
-                if (bk_req_if.valid) begin
-                    if (cur_ra == bk_req_if.ra) begin // bank hit
-                        if (bk_req_if.wr) begin
+                if (req_if.valid) begin
+                    if (cur_ra == req_if.ra) begin // bank hit
+                        if (req_if.wr) begin
                             // WRITE command
                             if (is_t_rcd_met & is_t_ccd_met & is_t_rtw_met) begin
                                 sched_if.wr_gnt             = 1'b1;
-                                sched_if.ca                 = bk_req_if.ca;
-                                sched_if.id                 = bk_req_if.id;
+                                sched_if.ca                 = req_if.ca;
+                                sched_if.id                 = req_if.id;
+                                sched_if.len                = req_if.len;
 
-                                bk_req_if.ready             = 1'b1;
+                                req_if.ready                = 1'b1;
                             end
                         end
                         else begin
                             // READ command
                             if (is_t_rcd_met & is_t_ccd_met & is_t_wtr_met) begin
                                 sched_if.rd_gnt             = 1'b1;
-                                sched_if.ca                 = bk_req_if.ca;
-                                sched_if.id                 = bk_req_if.id;
-                                sched_if.len                = bk_req_if.len;
+                                sched_if.ca                 = req_if.ca;
+                                sched_if.id                 = req_if.id;
+                                sched_if.len                = req_if.len;
 
-                                bk_req_if.ready             = 1'b1;
+                                req_if.ready                = 1'b1;
                             end
                         end
                     end
