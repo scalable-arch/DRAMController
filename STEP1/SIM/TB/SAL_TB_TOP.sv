@@ -220,7 +220,12 @@ module SAL_TB_TOP;
         read32B('d0, data);
         read32B('d32, data);
 
-        repeat (30) @(posedge clk);
+        repeat (100) @(posedge clk);
+
+        write32B('d0,   {8{32'h01234567}});
+        write32B('d32,  {8{32'h01234567}});
+        read32B('d0, data);
+        read32B('d32, data);
 
         $finish;
     end

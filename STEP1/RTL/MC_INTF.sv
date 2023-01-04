@@ -9,6 +9,7 @@ interface TIMING_IF ();
     logic   [`T_RFC_WIDTH-1:0]  t_rfc_m1;
     logic   [`T_RTP_WIDTH-1:0]  t_rtp_m1;
     logic   [`T_WTP_WIDTH-1:0]  t_wtp_m1;
+    logic   [7:0]               row_open_cnt;
     // inter-bank timing
     logic   [`T_RRD_WIDTH-1:0]  t_rrd_m1;
     logic   [`T_CCD_WIDTH-1:0]  t_ccd_m1;
@@ -19,11 +20,11 @@ interface TIMING_IF ();
 
     // synthesizable, for design
     modport SRC (
-        output                  t_rcd_m1, t_rp_m1, t_ras_m1, t_rfc_m1, t_rtp_m1, t_wtp_m1,
+        output                  t_rcd_m1, t_rp_m1, t_ras_m1, t_rfc_m1, t_rtp_m1, t_wtp_m1, row_open_cnt,
                                 t_rrd_m1, t_ccd_m1, t_wtr_m1, t_rtw_m1, dfi_wren_lat, dfi_rden_lat
     );
     modport MON (
-        input                   t_rcd_m1, t_rp_m1, t_ras_m1, t_rfc_m1, t_rtp_m1, t_wtp_m1,
+        input                   t_rcd_m1, t_rp_m1, t_ras_m1, t_rfc_m1, t_rtp_m1, t_wtp_m1, row_open_cnt,
                                 t_rrd_m1, t_ccd_m1, t_wtr_m1, t_rtw_m1, dfi_wren_lat, dfi_rden_lat
     );
 endinterface

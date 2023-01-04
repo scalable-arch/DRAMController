@@ -33,7 +33,8 @@ module SAL_BK_CTRL
                                 is_t_ras_met,
                                 is_t_rfc_met,
                                 is_t_rtp_met,
-                                is_t_wtp_met;
+                                is_t_wtp_met,
+                                is_row_open_met;
     wire                        is_t_rrd_met,
                                 is_t_ccd_met,
                                 is_t_rtw_met,
@@ -119,49 +120,17 @@ module SAL_BK_CTRL
                         end
                     end
                 end
+                else begin  // no request
+                    if (is_row_open_met) begin
+                        // PRECHARGE command
+                        sched_if.pre_gnt            = 1'b1;
+
+                        state_n                     = S_CLOSED;
+                    end
+                end
             end
         endcase
     end
-
-    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RRD_WIDTH)) u_rrd_cnt
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .reset_cmd_i                (sched_if.act_gnt),
-        .reset_value_i              (timing_if.t_rrd_m1),
-        .is_zero_o                  (is_t_rrd_met)
-    );
-
-    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_CCD_WIDTH)) u_ccd_cnt
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .reset_cmd_i                (sched_if.rd_gnt | sched_if.wr_gnt),
-        .reset_value_i              (timing_if.t_ccd_m1),
-        .is_zero_o                  (is_t_ccd_met)
-    );
-
-    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RTW_WIDTH)) u_rtw_cnt
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .reset_cmd_i                (sched_if.rd_gnt),
-        .reset_value_i              (timing_if.t_rtw_m1),
-        .is_zero_o                  (is_t_rtw_met)
-    );
-
-    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_WTR_WIDTH)) u_wtr_cnt
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .reset_cmd_i                (sched_if.wr_gnt),
-        .reset_value_i              (timing_if.t_wtr_m1),
-        .is_zero_o                  (is_t_wtr_met)
-    );
 
     // per-bank
     SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RCD_WIDTH)) u_rcd_cnt
@@ -223,5 +192,56 @@ module SAL_BK_CTRL
         .reset_value_i              (timing_if.t_wtp_m1),
         .is_zero_o                  (is_t_wtp_met)
     );
+
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`ROW_OPEN_WIDTH)) u_row_open_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.rd_gnt | sched_if.wr_gnt),
+        .reset_value_i              (timing_if.row_open_cnt),
+        .is_zero_o                  (is_row_open_met)
+    );
+    // inter-bank
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RRD_WIDTH)) u_rrd_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.act_gnt),
+        .reset_value_i              (timing_if.t_rrd_m1),
+        .is_zero_o                  (is_t_rrd_met)
+    );
+
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_CCD_WIDTH)) u_ccd_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.rd_gnt | sched_if.wr_gnt),
+        .reset_value_i              (timing_if.t_ccd_m1),
+        .is_zero_o                  (is_t_ccd_met)
+    );
+
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RTW_WIDTH)) u_rtw_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.rd_gnt),
+        .reset_value_i              (timing_if.t_rtw_m1),
+        .is_zero_o                  (is_t_rtw_met)
+    );
+
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_WTR_WIDTH)) u_wtr_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.wr_gnt),
+        .reset_value_i              (timing_if.t_wtr_m1),
+        .is_zero_o                  (is_t_wtr_met)
+    );
+
 
 endmodule // SAL_BK_CTRL
