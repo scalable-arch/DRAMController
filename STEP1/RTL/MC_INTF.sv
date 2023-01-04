@@ -9,7 +9,7 @@ interface TIMING_IF ();
     logic   [`T_RFC_WIDTH-1:0]  t_rfc_m1;
     logic   [`T_RTP_WIDTH-1:0]  t_rtp_m1;
     logic   [`T_WTP_WIDTH-1:0]  t_wtp_m1;
-    logic   [7:0]               row_open_cnt;
+    logic   [`ROW_OPEN_WIDTH-1:0]row_open_cnt;
     // inter-bank timing
     logic   [`T_RRD_WIDTH-1:0]  t_rrd_m1;
     logic   [`T_CCD_WIDTH-1:0]  t_ccd_m1;
@@ -29,24 +29,87 @@ interface TIMING_IF ();
     );
 endinterface
 
-interface REQ_IF ();
-    logic                       wr;
+interface REQ_IF
+(
+    input                       clk,
+    input                       rst_n
+);
     logic                       valid;
     logic                       ready;
     logic   [`AXI_ID_WIDTH-1:0] id;
     logic   [`DRAM_RA_WIDTH-1:0]ra;
     logic   [`DRAM_CA_WIDTH-1:0]ca;
-    logic   [`AXI_LEN_WIDTH-1:0]      len;
+    logic                       wr;
+    logic   [`AXI_LEN_WIDTH-1:0]len;
 
     // synthesizable, for design
     modport SRC (
-        output                  wr, valid, id, ra, ca, len,
+        output                  valid, id, ra, ca, wr, len,
         input                   ready
     );
     modport DST (
-        input                   wr, valid, id, ra, ca, len,
+        input                   valid, id, ra, ca, wr, len,
         output                  ready
     );
+
+    // for verification only
+    // synthesis translate_off
+    clocking SRC_CB @(posedge clk);
+        default input #0.1 output #0.1; // sample -0.1ns before posedge
+                                        // drive 0.1ns after posedge
+        output                  valid, id, ra, ca, wr, len;
+        input                   ready;
+    endclocking
+
+    clocking DST_CB @(posedge clk);
+        default input #0.1 output #0.1; // sample -0.1ns before posedge
+                                        // drive 0.1ns after posedge
+        input                   valid, id, ra, ca, wr, len;
+        output                  ready;
+    endclocking
+
+    clocking MON_CB @(posedge clk);
+        default input #0.1 output #0.1; // sample -0.1ns before posedge
+                                        // drive 0.1ns after posedge
+        input                   valid, id, ra, ca, wr, len;
+        input                   ready;
+    endclocking
+
+    modport SRC_TB (clocking SRC_CB, input clk, rst_n);
+    modport DST_TB (clocking DST_CB, input clk, rst_n);
+
+    function void init();   // does not consume timing
+        valid                       = 1'b0;
+        id                          = 'hx;
+        ra                          = 'hx;
+        ca                          = 'hx;
+        wr                          = 'hx;
+        len                         = 'hx;
+    endfunction
+
+    task automatic transfer(  input [`AXI_ID_WIDTH-1:0]     id,
+                              input [`DRAM_RA_WIDTH-1:0]    ra,
+                              input [`DRAM_CA_WIDTH-1:0]    ca,
+                              input                         wr,
+                              input [`AXI_LEN_WIDTH-1:0]    len);
+        SRC_CB.valid                <= 1'b1;
+        SRC_CB.id                   <= id;
+        SRC_CB.ra                   <= ra;
+        SRC_CB.ca                   <= ca;
+        SRC_CB.wr                   <= wr;
+        SRC_CB.len                  <= len;
+        @(posedge clk);
+        while (ready!=1'b1) begin
+            @(posedge clk);
+        end
+        SRC_CB.valid                <= 1'b0;
+        SRC_CB.id                   <= 'hx;
+        SRC_CB.ra                   <= 'hx;
+        SRC_CB.ca                   <= 'hx;
+        SRC_CB.wr                   <= 'hx;
+        SRC_CB.len                  <= 'hx;
+    endtask
+    // synthesis translate_on
 endinterface
 
 interface SCHED_IF ();

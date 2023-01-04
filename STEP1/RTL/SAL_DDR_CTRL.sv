@@ -27,7 +27,7 @@ module SAL_DDR_CTRL
     TIMING_IF                   timing_if();
 
     // request to a bank
-    REQ_IF                      req_if();
+    REQ_IF                      req_if(.clk(clk), .rst_n(rst_n));
     // scheduling output
     SCHED_IF                    sched_if();
 
