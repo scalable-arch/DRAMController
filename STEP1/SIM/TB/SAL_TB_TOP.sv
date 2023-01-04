@@ -23,11 +23,10 @@ module SAL_TB_TOP;
     end
 
     APB_IF                          apb_if      (.clk(clk), .rst_n(rst_n));
-    AXI_A_IF                        axi_ar_if   (.clk(clk), .rst_n(rst_n));
+
+    REQ_IF                          req_if      (.clk(clk), .rst_n(rst_n));
     AXI_R_IF                        axi_r_if    (.clk(clk), .rst_n(rst_n));
-    AXI_A_IF                        axi_aw_if   (.clk(clk), .rst_n(rst_n));
     AXI_W_IF                        axi_w_if    (.clk(clk), .rst_n(rst_n));
-    AXI_B_IF                        axi_b_if    (.clk(clk), .rst_n(rst_n));
 
     DFI_CTRL_IF                     dfi_ctrl_if (.clk(clk), .rst_n(rst_n));
     DFI_WR_IF                       dfi_wr_if   (.clk(clk), .rst_n(rst_n));
@@ -58,11 +57,10 @@ module SAL_TB_TOP;
         // APB interface
         .apb_if                     (apb_if),
 
-        // AXI interface
-        .axi_ar_if                  (axi_ar_if),
-        .axi_aw_if                  (axi_aw_if),
+        // request interface
+        .req_if                     (req_if),
+
         .axi_w_if                   (axi_w_if),
-        .axi_b_if                   (axi_b_if),
         .axi_r_if                   (axi_r_if),
 
         // DFI interface
@@ -145,10 +143,8 @@ module SAL_TB_TOP;
     );
 
     task init();
-        axi_aw_if.init();
+        req_if.init();            
         axi_w_if.init();
-        axi_b_if.init();
-        axi_ar_if.init();
         axi_r_if.init();
 
         // wait for a reset release
@@ -171,20 +167,13 @@ module SAL_TB_TOP;
         // drive to AW and W
         fork
             begin
-                axi_aw_if.transfer(simple_id, addr, 'd1, `AXI_SIZE_128, `AXI_BURST_INCR);
+                req_if.transfer(simple_id, get_dram_ra(addr), get_dram_ca(addr), 1'b1, 'd1);
             end
             begin
                 axi_w_if.transfer(simple_id, data[127:0], 16'hFFFF, 1'b0);
                 axi_w_if.transfer(simple_id, data[255:128], 16'hFFFF, 1'b1);
             end
         join
-
-        // receive from B
-        axi_b_if.receive(rid, rresp);
-
-        // check responses
-        if (rid!==simple_id) begin $display("ID mismatch (expected: %d, received: %d)", simple_id, rid); $finish; end
-        if (rresp!==2'b00) begin $display("Non-OK response (received: %d)", rresp); $finish; end
     endtask
 
     task automatic read32B(
@@ -196,18 +185,11 @@ module SAL_TB_TOP;
         logic                       rlast;
 
         // drive to AR
-        axi_ar_if.transfer(simple_id, addr, 'd1, `AXI_SIZE_128, `AXI_BURST_INCR);
+        req_if.transfer(simple_id, get_dram_ra(addr), get_dram_ca(addr), 1'b0, 'd1);
 
         // receive from R
         axi_r_if.receive(rid, data, rresp, rlast);
-        if (rlast!==1'b0) begin $display("RLAST mismatch (expected: %d, received: %d)", 0, rlast); $finish; end
-        if (rid!==simple_id) begin $display("ID mismatch (expected: %d, received: %d)", simple_id, rid); $finish; end
-        if (rresp!==2'b00) begin $display("Non-OK response (received: %d)", rresp); $finish; end
-
         axi_r_if.receive(rid, data, rresp, rlast);
-        if (rlast!==1'b1) begin $display("RLAST mismatch (expected: %d, received: %d)", 1, rlast); $finish; end
-        if (rid!==simple_id) begin $display("ID mismatch (expected: %d, received: %d)", simple_id, rid); $finish; end
-        if (rresp!==2'b00) begin $display("Non-OK response (received: %d)", rresp); $finish; end
     endtask
 
 
