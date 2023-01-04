@@ -29,7 +29,7 @@ interface TIMING_IF ();
     );
 endinterface
 
-interface BK_REQ_IF ();
+interface REQ_IF ();
     logic                       wr;
     logic                       valid;
     logic                       ready;

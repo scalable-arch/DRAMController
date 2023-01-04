@@ -27,7 +27,7 @@ module SAL_DDR_CTRL
     TIMING_IF                   timing_if();
 
     // request to a bank
-    BK_REQ_IF                   bk_req_if();
+    REQ_IF                      req_if();
     // scheduling output
     SCHED_IF                    sched_if();
 
@@ -68,7 +68,7 @@ module SAL_DDR_CTRL
         .axi_ar_if                  (axi_ar_if),
         .axi_aw_if                  (axi_aw_internal_if),
 
-        .bk_req_if                  (bk_req_if)
+        .req_if                     (req_if)
     );
 
     SAL_BK_CTRL                     u_bank_ctrl
@@ -78,7 +78,7 @@ module SAL_DDR_CTRL
 
         .timing_if                  (timing_if),
 
-        .bk_req_if                  (bk_req_if),
+        .req_if                     (req_if),
         .sched_if                   (sched_if),
 
         .ref_req_i                  (1'b0),
