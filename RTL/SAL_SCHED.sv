@@ -52,6 +52,10 @@ module SAL_SCHED
         end
     endgenerate
 
+    wire                        is_t_rrd_met,
+                                is_t_ccd_met,
+                                is_t_rtw_met,
+                                is_t_wtr_met;
     always_comb begin
         for (int i=0; i<`DRAM_BK_CNT; i=i+1) begin
             act_gnt_arr[i]                  = 1'b0;
@@ -71,7 +75,7 @@ module SAL_SCHED
         sched_if.id                     = 'hx;
         sched_if.len                    = 'hx;
 
-        if (|act_req_arr) begin
+        if ((|act_req_arr) & is_t_rrd_met) begin
             for (int i=0; i<`DRAM_BK_CNT; i=i+1) begin
                 if (act_req_arr[i]) begin
                     act_gnt_arr[i]                  = 1'b1;
@@ -82,7 +86,7 @@ module SAL_SCHED
                 end
             end
         end
-        else if (|rd_req_arr) begin
+        else if ((|rd_req_arr) & is_t_ccd_met & is_t_wtr_met) begin
             for (int i=0; i<`DRAM_BK_CNT; i=i+1) begin
                 if (rd_req_arr[i]) begin
                     rd_gnt_arr[i]                   = 1'b1;
@@ -95,7 +99,7 @@ module SAL_SCHED
                 end
             end
         end
-        else if (|wr_req_arr) begin
+        else if ((|wr_req_arr) & is_t_ccd_met & is_t_rtw_met) begin
             for (int i=0; i<`DRAM_BK_CNT; i=i+1) begin
                 if (wr_req_arr[i]) begin
                     wr_gnt_arr[i]                   = 1'b1;
@@ -118,7 +122,7 @@ module SAL_SCHED
                 end
             end
         end
-        else if (|ref_req_arr) begin
+        else if ((|ref_req_arr) & is_t_rrd_met) begin
             for (int i=0; i<`DRAM_BK_CNT; i=i+1) begin
                 if (ref_req_arr[i]) begin
                     ref_gnt_arr[i]                  = 1'b1;
@@ -130,4 +134,44 @@ module SAL_SCHED
         end
     end
 
+    // inter-bank
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RRD_WIDTH)) u_rrd_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.act_gnt),
+        .reset_value_i              (timing_if.t_rrd_m1),
+        .is_zero_o                  (is_t_rrd_met)
+    );
+
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_CCD_WIDTH)) u_ccd_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.rd_gnt | sched_if.wr_gnt),
+        .reset_value_i              (timing_if.t_ccd_m1),
+        .is_zero_o                  (is_t_ccd_met)
+    );
+
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RTW_WIDTH)) u_rtw_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.rd_gnt),
+        .reset_value_i              (timing_if.t_rtw_m1),
+        .is_zero_o                  (is_t_rtw_met)
+    );
+
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_WTR_WIDTH)) u_wtr_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.wr_gnt),
+        .reset_value_i              (timing_if.t_wtr_m1),
+        .is_zero_o                  (is_t_wtr_met)
+    );
 endmodule // SAL_SCHED

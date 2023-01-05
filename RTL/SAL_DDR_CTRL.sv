@@ -76,7 +76,7 @@ module SAL_DDR_CTRL
     genvar geni;
 
     generate
-        for (geni=0; geni<`DRAM_BK_CNT; geni=geni+1) begin  : BK_CTRL
+        for (geni=0; geni<`DRAM_BK_CNT; geni=geni+1) begin  : BK
             SAL_BK_CTRL                     u_bank_ctrl
             (
                 .clk                        (clk),

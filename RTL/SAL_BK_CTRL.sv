@@ -35,10 +35,6 @@ module SAL_BK_CTRL
                                 is_t_rtp_met,
                                 is_t_wtp_met,
                                 is_row_open_met;
-    wire                        is_t_rrd_met,
-                                is_t_ccd_met,
-                                is_t_rtw_met,
-                                is_t_wtr_met;
 
     always_ff @(posedge clk)
         if (~rst_n) begin
@@ -70,19 +66,23 @@ module SAL_BK_CTRL
 
         case (state)
             S_CLOSED: begin     // the bank is closed
-                if (is_t_rp_met & is_t_rfc_met & is_t_rrd_met) begin
+                if (is_t_rp_met & is_t_rfc_met) begin
                     if (ref_req_i) begin
                         // AUTO-REFRESH command
                         sched_if.ref_req            = 1'b1;
-                        ref_gnt_o                   = 1'b1;
+                        if (sched_if.ref_gnt) begin
+                            ref_gnt_o                   = 1'b1;
+                        end
                     end
                     else if (req_if.valid) begin    // a new request came
                         // ACTIVATE command
                         sched_if.act_req            = 1'b1;
                         sched_if.ra                 = req_if.ra;
 
-                        cur_ra_n                    = req_if.ra;
-                        state_n                     = S_OPEN;
+                        if (sched_if.act_gnt) begin
+                            cur_ra_n                    = req_if.ra;
+                            state_n                     = S_OPEN;
+                        end
                     end
                 end
             end
@@ -91,24 +91,28 @@ module SAL_BK_CTRL
                     if (cur_ra == req_if.ra) begin // bank hit
                         if (req_if.wr) begin
                             // WRITE command
-                            if (is_t_rcd_met & is_t_ccd_met & is_t_rtw_met) begin
+                            if (is_t_rcd_met) begin
                                 sched_if.wr_req             = 1'b1;
                                 sched_if.ca                 = req_if.ca;
                                 sched_if.id                 = req_if.id;
                                 sched_if.len                = req_if.len;
 
-                                req_if.ready                = 1'b1;
+                                if (sched_if.wr_gnt) begin
+                                    req_if.ready                = 1'b1;
+                                end
                             end
                         end
                         else begin
                             // READ command
-                            if (is_t_rcd_met & is_t_ccd_met & is_t_wtr_met) begin
+                            if (is_t_rcd_met) begin
                                 sched_if.rd_req             = 1'b1;
                                 sched_if.ca                 = req_if.ca;
                                 sched_if.id                 = req_if.id;
                                 sched_if.len                = req_if.len;
 
-                                req_if.ready                = 1'b1;
+                                if (sched_if.rd_gnt) begin
+                                    req_if.ready                = 1'b1;
+                                end
                             end
                         end
                     end
@@ -117,7 +121,9 @@ module SAL_BK_CTRL
                             // PRECHARGE command
                             sched_if.pre_req            = 1'b1;
 
-                            state_n                     = S_CLOSED;
+                            if (sched_if.pre_gnt) begin
+                                state_n                     = S_CLOSED;
+                            end
                         end
                     end
                 end
@@ -126,7 +132,9 @@ module SAL_BK_CTRL
                         // PRECHARGE command
                         sched_if.pre_req            = 1'b1;
 
-                        state_n                     = S_CLOSED;
+                        if (sched_if.pre_gnt) begin
+                            state_n                     = S_CLOSED;
+                        end
                     end
                 end
             end
@@ -202,46 +210,6 @@ module SAL_BK_CTRL
         .reset_cmd_i                (sched_if.rd_gnt | sched_if.wr_gnt),
         .reset_value_i              (timing_if.row_open_cnt),
         .is_zero_o                  (is_row_open_met)
-    );
-    // inter-bank
-    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RRD_WIDTH)) u_rrd_cnt
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .reset_cmd_i                (sched_if.act_gnt),
-        .reset_value_i              (timing_if.t_rrd_m1),
-        .is_zero_o                  (is_t_rrd_met)
-    );
-
-    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_CCD_WIDTH)) u_ccd_cnt
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .reset_cmd_i                (sched_if.rd_gnt | sched_if.wr_gnt),
-        .reset_value_i              (timing_if.t_ccd_m1),
-        .is_zero_o                  (is_t_ccd_met)
-    );
-
-    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RTW_WIDTH)) u_rtw_cnt
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .reset_cmd_i                (sched_if.rd_gnt),
-        .reset_value_i              (timing_if.t_rtw_m1),
-        .is_zero_o                  (is_t_rtw_met)
-    );
-
-    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_WTR_WIDTH)) u_wtr_cnt
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .reset_cmd_i                (sched_if.wr_gnt),
-        .reset_value_i              (timing_if.t_wtr_m1),
-        .is_zero_o                  (is_t_wtr_met)
     );
 
 endmodule // SAL_BK_CTRL
