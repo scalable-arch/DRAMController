@@ -28,7 +28,8 @@ module SAL_BK_CTRL
     // current row address
     logic   [`DRAM_RA_WIDTH-1:0]cur_ra,             cur_ra_n;
 
-    wire                        is_t_rcd_met,
+    wire                        is_t_rc_met,
+                                is_t_rcd_met,
                                 is_t_rp_met,
                                 is_t_ras_met,
                                 is_t_rfc_met,
@@ -70,7 +71,7 @@ module SAL_BK_CTRL
 
         case (state)
             S_CLOSED: begin     // the bank is closed
-                if (is_t_rp_met & is_t_rfc_met & is_t_rrd_met) begin
+                if (is_t_rc_met & is_t_rp_met & is_t_rfc_met & is_t_rrd_met) begin
                     if (ref_req_i) begin
                         // AUTO-REFRESH command
                         sched_if.ref_gnt            = 1'b1;
@@ -134,6 +135,16 @@ module SAL_BK_CTRL
     end
 
     // per-bank
+    SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RCD_WIDTH)) u_rc_cnt
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .reset_cmd_i                (sched_if.act_gnt),
+        .reset_value_i              (timing_if.t_rc_m1),
+        .is_zero_o                  (is_t_rc_met)
+    );
+
     SAL_TIMING_CNTR  #(.CNTR_WIDTH(`T_RCD_WIDTH)) u_rcd_cnt
     (
         .clk                        (clk),

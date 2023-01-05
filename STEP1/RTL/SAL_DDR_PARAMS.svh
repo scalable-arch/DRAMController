@@ -51,6 +51,8 @@
 
 `define ROUND_UP(x)                             ((x+int'(`CLK_PERIOD*1000)-1)/(int'(`CLK_PERIOD*1000)))
 
+`define T_RC_WIDTH                              5
+`define T_RC_VALUE_M1                           (`ROUND_UP(TRC)-1)
 `define T_RCD_WIDTH                             3
 `define T_RCD_VALUE_M1                          (`ROUND_UP(TRCD)-1)
 `define T_RP_WIDTH                              3
