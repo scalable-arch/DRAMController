@@ -26,8 +26,10 @@ module SAL_DDR_CTRL
     // timing parameters
     TIMING_IF                   timing_if();
 
-    // request to a bank
-    REQ_IF                      req_if(.clk(clk), .rst_n(rst_n));
+    // requests to a bank
+    REQ_IF                      bk_req_if_arr[`DRAM_BK_CNT](.clk(clk), .rst_n(rst_n));
+    // requests to the scheduler
+    SCHED_IF                    bk_sched_if_arr[`DRAM_BK_CNT] ();
     // scheduling output
     SCHED_IF                    sched_if();
 
@@ -68,21 +70,36 @@ module SAL_DDR_CTRL
         .axi_ar_if                  (axi_ar_if),
         .axi_aw_if                  (axi_aw_internal_if),
 
-        .req_if                     (req_if)
+        .req_if_arr                 (bk_req_if_arr)
     );
 
-    SAL_BK_CTRL                     u_bank_ctrl
+    genvar geni;
+
+    generate
+        for (geni=0; geni<`DRAM_BK_CNT; geni=geni+1) begin  : BK
+            SAL_BK_CTRL                     u_bank_ctrl
+            (
+                .clk                        (clk),
+                .rst_n                      (rst_n),
+        
+                .timing_if                  (timing_if),
+        
+                .req_if                     (bk_req_if_arr[geni]),
+                .sched_if                   (bk_sched_if_arr[geni]),
+        
+                .ref_req_i                  (1'b0),
+                .ref_gnt_o                  ()
+            );
+        end
+    endgenerate
+
+    SAL_SCHED                       u_sched
     (
         .clk                        (clk),
         .rst_n                      (rst_n),
 
-        .timing_if                  (timing_if),
-
-        .req_if                     (req_if),
-        .sched_if                   (sched_if),
-
-        .ref_req_i                  (1'b0),
-        .ref_gnt_o                  ()
+        .bk_sched_if_arr            (bk_sched_if_arr),
+        .sched_if                   (sched_if)
     );
 
     SAL_CTRL_ENCODER                u_encoder
