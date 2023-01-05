@@ -82,3 +82,7 @@ Some features of the interface are not synthesizeable and we added "synthesis tr
 
 ## Row Open Counter
 The controller will leave an accessed row open for ROW_OPEN_CNT cycles, so that a following access on the same row can benefit from the open row. If there's an row hit, the counter will reset and keep the row open for another ROW_OPEN_CNT cycles. Otherwise, it will close the row.
+
+## Read out-of-order Processing
+The AXI protocol requires in-order service among requests with the same ID. Requests with different IDs can be served out-of-order.
+To support out-of-order processing, the controller tags each request with a per-ID sequence number. The scheduler maintains a table of sequence numbers that has been already scheduled and do not schedule a RD command that is bigger than the last sequence number + 1.
