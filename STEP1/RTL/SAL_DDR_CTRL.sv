@@ -10,9 +10,11 @@ module SAL_DDR_CTRL
     // APB interface
     APB_IF.DST                  apb_if,
 
-    // request interface
-    REQ_IF.DST                  req_if,
+    // AXI interface
+    AXI_A_IF.DST                axi_ar_if,
+    AXI_A_IF.DST                axi_aw_if,
     AXI_W_IF.DST                axi_w_if,
+    AXI_B_IF.SRC                axi_b_if,
     AXI_R_IF.SRC                axi_r_if,
 
     // DFI interface
@@ -25,8 +27,11 @@ module SAL_DDR_CTRL
     TIMING_IF                   timing_if();
 
     // request to a bank
+    REQ_IF                      req_if(.clk(clk), .rst_n(rst_n));
     // scheduling output
     SCHED_IF                    sched_if();
+
+    AXI_A_IF                    axi_aw_internal_if (.clk(clk), .rst_n(rst_n));
 
     // Configurations
     SAL_CFG                         u_cfg
@@ -37,6 +42,33 @@ module SAL_DDR_CTRL
         .apb_if                     (apb_if),
 
         .timing_if                  (timing_if)
+    );
+
+    SAL_WR_CTRL                     u_wr_ctrl
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .timing_if                  (timing_if),
+        .sched_if                   (sched_if),
+
+        .axi_aw_if                  (axi_aw_if),
+        .axi_w_if                   (axi_w_if),
+        .axi_b_if                   (axi_b_if),
+
+        .axi_aw2_if                 (axi_aw_internal_if),
+        .dfi_wr_if                  (dfi_wr_if)
+    );
+
+    SAL_ADDR_DECODER                u_decoder
+    (
+        .clk                        (clk),
+        .rst_n                      (rst_n),
+
+        .axi_ar_if                  (axi_ar_if),
+        .axi_aw_if                  (axi_aw_internal_if),
+
+        .req_if                     (req_if)
     );
 
     SAL_BK_CTRL                     u_bank_ctrl
@@ -60,18 +92,6 @@ module SAL_DDR_CTRL
 
         .sched_if                   (sched_if),
         .dfi_ctrl_if                (dfi_ctrl_if)
-    );
-
-    SAL_WR_CTRL                     u_wr_ctrl
-    (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
-
-        .axi_w_if                   (axi_w_if),
-        .timing_if                  (timing_if),
-        .sched_if                   (sched_if),
-
-        .dfi_wr_if                  (dfi_wr_if)
     );
 
     SAL_RD_CTRL                     u_rd_ctrl
