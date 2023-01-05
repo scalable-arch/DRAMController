@@ -45,29 +45,36 @@ Some features of the interface are not synthesizeable and we added "synthesis tr
 # Timing Parameters
 
 ## DRAM Timing Parameters
-Before you issue an ACTivate or REFresh command, it must meet
+### Before you issue an ACTivate or REFresh command, it must meet
+
 (intra-bank)
 - tRC
 - tRP
 - tRFC
+
 (inter-bank)
 - tRRD
 - tFAW
 
-Before you issue a READ command, it must meet
+### Before you issue a READ command, it must meet
+
 (intra-bank)
 - tRCD
 - tWTR (in more details, (CL-1) + (BL/2) + tWTR)
+
 (inter-bank)
 - tCCD
 
-Before you issue a WRite command, it must meet
+### Before you issue a WRite command, it must meet
+
 (intra-bank)
 - tRCD
+
 (inter-bank)
 - tCCD
 
-Before you issue a PREcharge command, it must meet
+### Before you issue a PREcharge command, it must meet
+
 (intra-bank)
 - tRAS (min)
 - tRTP
