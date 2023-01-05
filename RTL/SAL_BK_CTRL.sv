@@ -57,11 +57,11 @@ module SAL_BK_CTRL
         ref_gnt_o                   = 1'b0;
         req_if.ready                = 1'b0;
 
-        sched_if.act_gnt            = 1'b0;
-        sched_if.rd_gnt             = 1'b0;
-        sched_if.wr_gnt             = 1'b0;
-        sched_if.pre_gnt            = 1'b0;
-        sched_if.ref_gnt            = 1'b0;
+        sched_if.act_req            = 1'b0;
+        sched_if.rd_req             = 1'b0;
+        sched_if.wr_req             = 1'b0;
+        sched_if.pre_req            = 1'b0;
+        sched_if.ref_req            = 1'b0;
         sched_if.ba                 = 'h0;  // bank 0
         sched_if.ra                 = 'hx;
         sched_if.ca                 = 'hx;
@@ -73,12 +73,12 @@ module SAL_BK_CTRL
                 if (is_t_rp_met & is_t_rfc_met & is_t_rrd_met) begin
                     if (ref_req_i) begin
                         // AUTO-REFRESH command
-                        sched_if.ref_gnt            = 1'b1;
+                        sched_if.ref_req            = 1'b1;
                         ref_gnt_o                   = 1'b1;
                     end
                     else if (req_if.valid) begin    // a new request came
                         // ACTIVATE command
-                        sched_if.act_gnt            = 1'b1;
+                        sched_if.act_req            = 1'b1;
                         sched_if.ra                 = req_if.ra;
 
                         cur_ra_n                    = req_if.ra;
@@ -92,7 +92,7 @@ module SAL_BK_CTRL
                         if (req_if.wr) begin
                             // WRITE command
                             if (is_t_rcd_met & is_t_ccd_met & is_t_rtw_met) begin
-                                sched_if.wr_gnt             = 1'b1;
+                                sched_if.wr_req             = 1'b1;
                                 sched_if.ca                 = req_if.ca;
                                 sched_if.id                 = req_if.id;
                                 sched_if.len                = req_if.len;
@@ -103,7 +103,7 @@ module SAL_BK_CTRL
                         else begin
                             // READ command
                             if (is_t_rcd_met & is_t_ccd_met & is_t_wtr_met) begin
-                                sched_if.rd_gnt             = 1'b1;
+                                sched_if.rd_req             = 1'b1;
                                 sched_if.ca                 = req_if.ca;
                                 sched_if.id                 = req_if.id;
                                 sched_if.len                = req_if.len;
@@ -115,7 +115,7 @@ module SAL_BK_CTRL
                     else begin  // bank miss
                         if (is_t_ras_met & is_t_rtp_met & is_t_wtp_met) begin
                             // PRECHARGE command
-                            sched_if.pre_gnt            = 1'b1;
+                            sched_if.pre_req            = 1'b1;
 
                             state_n                     = S_CLOSED;
                         end
@@ -124,7 +124,7 @@ module SAL_BK_CTRL
                 else begin  // no request
                     if (is_row_open_met) begin
                         // PRECHARGE command
-                        sched_if.pre_gnt            = 1'b1;
+                        sched_if.pre_req            = 1'b1;
 
                         state_n                     = S_CLOSED;
                     end
