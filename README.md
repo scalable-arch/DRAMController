@@ -15,7 +15,7 @@ The controller receives DRAM access requests via the AXI interface, schedules, c
 The DDRPHY fine-controls the signals to meet the tight sub-cycle DRAM timing parameters.
 
 ## Block Diagram
-![Block Diagram](DOC/FIG/Block diagram.png)
+![Block Diagram](DOC/FIG/Block_diagram.png)
 
 ## Protocols
 
