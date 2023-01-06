@@ -8,8 +8,8 @@ module SAL_ADDR_DECODER
     input                       rst_n,
 
     // request from the AXI side
-    AXI_A_IF.DST                axi_ar_if,
-    AXI_A_IF.DST                axi_aw_if,
+    AXI_IF.SLV_AR               axi_ar_if,
+    AXI_IF.SLV_AW               axi_aw_if,
 
     // requests to bank controllers
     REQ_IF.SRC                  req_if_arr[`DRAM_BK_CNT]
@@ -37,25 +37,25 @@ module SAL_ADDR_DECODER
         //
         // TODO: Support concurrent requests from AW and AR
         //       if they target different banks
-        if (axi_aw_if.avalid) begin
+        if (axi_aw_if.awvalid) begin
             // WR (addr/data) are ready
             valid                           = 1'b1;
             wr                              = 1'b1;
-            id                              = axi_aw_if.aid;
-            len                             = axi_aw_if.alen;
-            ba                              = get_dram_ba(axi_aw_if.aaddr);
-            ra                              = get_dram_ra(axi_aw_if.aaddr);
-            ca                              = get_dram_ca(axi_aw_if.aaddr);
+            id                              = axi_aw_if.awid;
+            len                             = axi_aw_if.awlen;
+            ba                              = get_dram_ba(axi_aw_if.awaddr);
+            ra                              = get_dram_ra(axi_aw_if.awaddr);
+            ca                              = get_dram_ca(axi_aw_if.awaddr);
         end
-        else if (axi_ar_if.avalid) begin
+        else if (axi_ar_if.arvalid) begin
             // RD (addr) are ready
             valid                           = 1'b1;
             wr                              = 1'b0;
-            id                              = axi_ar_if.aid;
-            len                             = axi_ar_if.alen;
-            ba                              = get_dram_ba(axi_ar_if.aaddr);
-            ra                              = get_dram_ra(axi_ar_if.aaddr);
-            ca                              = get_dram_ca(axi_ar_if.aaddr);
+            id                              = axi_ar_if.arid;
+            len                             = axi_ar_if.arlen;
+            ba                              = get_dram_ba(axi_ar_if.araddr);
+            ra                              = get_dram_ra(axi_ar_if.araddr);
+            ca                              = get_dram_ca(axi_ar_if.araddr);
         end
     end
 
@@ -79,7 +79,7 @@ module SAL_ADDR_DECODER
         end
     endgenerate
 
-    assign  axi_aw_if.aready                = wr & (|ready_bit_vector);
-    assign  axi_ar_if.aready                = !wr & (|ready_bit_vector);
+    assign  axi_aw_if.awready               = wr & (|ready_bit_vector);
+    assign  axi_ar_if.arready               = !wr & (|ready_bit_vector);
 
 endmodule // SAL_ADDR_DECODER

@@ -8,14 +8,10 @@ module SAL_DDR_CTRL
     input                       rst_n,
 
     // APB interface
-    APB_IF.DST                  apb_if,
+    APB_IF.SLV                  apb_if,
 
     // AXI interface
-    AXI_A_IF.DST                axi_ar_if,
-    AXI_A_IF.DST                axi_aw_if,
-    AXI_W_IF.DST                axi_w_if,
-    AXI_B_IF.SRC                axi_b_if,
-    AXI_R_IF.SRC                axi_r_if,
+    AXI_IF.SLV                  axi_if,
 
     // DFI interface
     DFI_CTRL_IF.SRC             dfi_ctrl_if,
@@ -33,7 +29,7 @@ module SAL_DDR_CTRL
     // scheduling output
     SCHED_IF                    sched_if();
 
-    AXI_A_IF                    axi_aw_internal_if (.clk(clk), .rst_n(rst_n));
+    AXI_IF                      axi_internal_if     (.clk(clk), .rst_n(rst_n));
 
     // Configurations
     SAL_CFG                         u_cfg
@@ -54,11 +50,11 @@ module SAL_DDR_CTRL
         .timing_if                  (timing_if),
         .sched_if                   (sched_if),
 
-        .axi_aw_if                  (axi_aw_if),
-        .axi_w_if                   (axi_w_if),
-        .axi_b_if                   (axi_b_if),
+        .axi_aw_if                  (axi_if),
+        .axi_w_if                   (axi_if),
+        .axi_b_if                   (axi_if),
 
-        .axi_aw2_if                 (axi_aw_internal_if),
+        .axi_aw2_if                 (axi_internal_if),
         .dfi_wr_if                  (dfi_wr_if)
     );
 
@@ -67,8 +63,8 @@ module SAL_DDR_CTRL
         .clk                        (clk),
         .rst_n                      (rst_n),
 
-        .axi_ar_if                  (axi_ar_if),
-        .axi_aw_if                  (axi_aw_internal_if),
+        .axi_ar_if                  (axi_if.SLV_AR),
+        .axi_aw_if                  (axi_internal_if),
 
         .req_if_arr                 (bk_req_if_arr)
     );
@@ -119,7 +115,7 @@ module SAL_DDR_CTRL
         .timing_if                  (timing_if),
         .sched_if                   (sched_if),
         .dfi_rd_if                  (dfi_rd_if),
-        .axi_r_if                   (axi_r_if)
+        .axi_r_if                   (axi_if)
     );
 
 endmodule // SAL_DDR_CTRL

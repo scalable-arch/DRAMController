@@ -16,7 +16,7 @@ module SAL_RD_CTRL
     // read data from DDR PHY
     DFI_RD_IF.DST               dfi_rd_if,
     // read data to AXI
-    AXI_R_IF.SRC                axi_r_if
+    AXI_IF.SLV_R                axi_r_if
 );
 
     //----------------------------------------------------------

@@ -14,9 +14,9 @@ module SAL_WR_CTRL
     SCHED_IF.MON                sched_if,
 
     // write data from AXI
-    AXI_A_IF.DST                axi_aw_if,
-    AXI_W_IF.DST                axi_w_if,
-    AXI_B_IF.SRC                axi_b_if,
+    AXI_IF.SLV_AW               axi_aw_if,
+    AXI_IF.SLV_W                axi_w_if,
+    AXI_IF.SLV_B                axi_b_if,
 
     // request to address decoder
     AXI_A_IF.SRC                axi_aw2_if,
@@ -41,23 +41,23 @@ module SAL_WR_CTRL
         .rst_n                      (rst_n),
         .full_o                     (aw_fifo_full),
         .afull_o                    (/* NC */),
-        .wren_i                     (axi_aw_if.avalid & axi_aw_if.aready),
-        .wdata_i                    ({axi_aw_if.aid,
-                                      axi_aw_if.aaddr,
-                                      axi_aw_if.alen,
-                                      axi_aw_if.asize,
-                                      axi_aw_if.aburst}),
+        .wren_i                     (axi_aw_if.awvalid & axi_aw_if.awready),
+        .wdata_i                    ({axi_aw_if.awid,
+                                      axi_aw_if.awaddr,
+                                      axi_aw_if.awlen,
+                                      axi_aw_if.awsize,
+                                      axi_aw_if.awburst}),
 
         .empty_o                    (aw_fifo_empty),
         .aempty_o                   (/* NC */),
-        .rden_i                     (axi_aw2_if.avalid & axi_aw2_if.aready),
-        .rdata_o                    ({axi_aw2_if.aid,
-                                      axi_aw2_if.aaddr,
-                                      axi_aw2_if.alen,
-                                      axi_aw2_if.asize,
-                                      axi_aw2_if.aburst})
+        .rden_i                     (axi_aw2_if.awvalid & axi_aw2_if.awready),
+        .rdata_o                    ({axi_aw2_if.awid,
+                                      axi_aw2_if.awaddr,
+                                      axi_aw2_if.awlen,
+                                      axi_aw2_if.awsize,
+                                      axi_aw2_if.awburst})
     );
-    assign  axi_aw_if.aready            = ~aw_fifo_full;
+    assign  axi_aw_if.awready           = ~aw_fifo_full;
 
     //----------------------------------------------------------
     // buffer AXI W data
@@ -99,7 +99,7 @@ module SAL_WR_CTRL
 
     logic                       aw2_hs,     wlast_hs;
     always_comb begin
-        aw2_hs                      = axi_aw2_if.avalid & axi_aw2_if.aready;
+        aw2_hs                      = axi_aw2_if.awvalid & axi_aw2_if.awready;
         wlast_hs                    = axi_w_if.wvalid & axi_w_if.wready & axi_w_if.wlast;
 
         if (~aw2_hs & wlast_hs) begin
@@ -113,7 +113,7 @@ module SAL_WR_CTRL
         end
     end
 
-    assign  axi_aw2_if.avalid           = ~aw_fifo_empty & (w_trans_cnt!='d0);
+    assign  axi_aw2_if.awvalid          = ~aw_fifo_empty & (w_trans_cnt!='d0);
 
     //----------------------------------------------------------
     // AXI B path

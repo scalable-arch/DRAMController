@@ -5,10 +5,23 @@
 `define CLK_PERIOD                              2.5
 
 // AXI interface
+`define AXI_ID_WIDTH                            4
 `define AXI_ADDR_WIDTH                          32
 `define AXI_DATA_WIDTH                          128
-`define AXI_ID_WIDTH                            4
+`define AXI_STRB_WIDTH                          (`AXI_DATA_WIDTH/8)
 `define AXI_LEN_WIDTH                           4
+`define AXI_SIZE_WIDTH                          3
+`define AXI_BURST_WIDTH                         2
+`define AXI_RESP_WIDTH                          2
+
+typedef logic   [`AXI_ID_WIDTH-1:0]             axi_id_t;
+typedef logic   [`AXI_ADDR_WIDTH-1:0]           axi_addr_t;
+typedef logic   [`AXI_DATA_WIDTH-1:0]           axi_data_t;
+typedef logic   [`AXI_STRB_WIDTH-1:0]           axi_strb_t;
+typedef logic   [`AXI_LEN_WIDTH-1:0]            axi_len_t;
+typedef logic   [`AXI_SIZE_WIDTH-1:0]           axi_size_t;
+typedef logic   [`AXI_BURST_WIDTH-1:0]          axi_burst_t;
+typedef logic   [`AXI_RESP_WIDTH-1:0]           axi_resp_t;
 
 `define AXI_SIZE_8                              3'b000
 `define AXI_SIZE_16                             3'b001
