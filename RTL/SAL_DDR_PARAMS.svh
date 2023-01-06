@@ -1,10 +1,14 @@
 `ifndef __SAL_DDR_TYPEDEF_SVH__
 `define __SAL_DDR_TYPEDEF_SVH__
 
-// for simulation only
 `define CLK_PERIOD                              2.5
 
+//----------------------------------------------------------
 // AXI interface
+//----------------------------------------------------------
+`define AXI_READ_ACCEPTANCE_CAP                 8
+`define AXI_WRITE_ACCEPTANCE_CAP                1
+
 `define AXI_ID_WIDTH                            4
 `define AXI_ADDR_WIDTH                          32
 `define AXI_DATA_WIDTH                          128
@@ -13,15 +17,6 @@
 `define AXI_SIZE_WIDTH                          3
 `define AXI_BURST_WIDTH                         2
 `define AXI_RESP_WIDTH                          2
-
-typedef logic   [`AXI_ID_WIDTH-1:0]             axi_id_t;
-typedef logic   [`AXI_ADDR_WIDTH-1:0]           axi_addr_t;
-typedef logic   [`AXI_DATA_WIDTH-1:0]           axi_data_t;
-typedef logic   [`AXI_STRB_WIDTH-1:0]           axi_strb_t;
-typedef logic   [`AXI_LEN_WIDTH-1:0]            axi_len_t;
-typedef logic   [`AXI_SIZE_WIDTH-1:0]           axi_size_t;
-typedef logic   [`AXI_BURST_WIDTH-1:0]          axi_burst_t;
-typedef logic   [`AXI_RESP_WIDTH-1:0]           axi_resp_t;
 
 `define AXI_SIZE_8                              3'b000
 `define AXI_SIZE_16                             3'b001
@@ -38,17 +33,37 @@ typedef logic   [`AXI_RESP_WIDTH-1:0]           axi_resp_t;
 `define AXI_RESP_SLVERR                         2'b10
 `define AXI_RESP_DECERR                         2'b11
 
+typedef logic   [`AXI_ID_WIDTH-1:0]             axi_id_t;
+typedef logic   [`AXI_ADDR_WIDTH-1:0]           axi_addr_t;
+typedef logic   [`AXI_DATA_WIDTH-1:0]           axi_data_t;
+typedef logic   [`AXI_STRB_WIDTH-1:0]           axi_strb_t;
+typedef logic   [`AXI_LEN_WIDTH-1:0]            axi_len_t;
+typedef logic   [`AXI_SIZE_WIDTH-1:0]           axi_size_t;
+typedef logic   [`AXI_BURST_WIDTH-1:0]          axi_burst_t;
+typedef logic   [`AXI_RESP_WIDTH-1:0]           axi_resp_t;
+
+// MC interface
+`define MC_BA_WIDTH                             2
+`define MC_RA_WIDTH                             13
+`define MC_CA_WIDTH                             8
+
+`define MC_SEQ_NUM_WIDTH                        $clog2(`AXI_READ_ACCEPTANCE_CAP)
+
+typedef logic   [`MC_BA_WIDTH-1:0]              mc_ba_t;
+typedef logic   [`MC_RA_WIDTH-1:0]              mc_ra_t;
+typedef logic   [`MC_CA_WIDTH-1:0]              mc_ca_t;
+typedef logic   [`MC_SEQ_NUM_WIDTH-1:0]         seq_num_t;
+
 // DFI interface
 `define DFI_CS_WIDTH                            2
-`define DFI_BA_WIDTH                            2
+`define DFI_BA_WIDTH                            3
 `define DFI_ADDR_WIDTH                          14
 
 // DRAM interface
-`define DRAM_RA_WIDTH                           13
-`define DRAM_CA_WIDTH                           8
-
 `define DRAM_CS_WIDTH                           `DFI_CS_WIDTH
 `define DRAM_BA_WIDTH                           `DFI_BA_WIDTH
+`define DRAM_RA_WIDTH                           13
+`define DRAM_CA_WIDTH                           8
 `define DRAM_ADDR_WIDTH                         `DFI_ADDR_WIDTH
 
 `define BURST_LENGTH                            4

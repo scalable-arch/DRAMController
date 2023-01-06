@@ -36,41 +36,41 @@ module SAL_DDR_CTRL
     AXI_A_IF                    axi_aw_internal_if (.clk(clk), .rst_n(rst_n));
 
     // Configurations
-    SAL_CFG                         u_cfg
+    SAL_CFG                     u_cfg
     (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
+        .clk                    (clk),
+        .rst_n                  (rst_n),
 
-        .apb_if                     (apb_if),
+        .apb_if                 (apb_if),
 
-        .timing_if                  (timing_if)
+        .timing_if              (timing_if)
     );
 
-    SAL_WR_CTRL                     u_wr_ctrl
+    SAL_WR_CTRL                 u_wr_ctrl
     (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
+        .clk                    (clk),
+        .rst_n                  (rst_n),
 
-        .timing_if                  (timing_if),
-        .sched_if                   (sched_if),
+        .timing_if              (timing_if),
+        .sched_if               (sched_if),
 
-        .axi_aw_if                  (axi_aw_if),
-        .axi_w_if                   (axi_w_if),
-        .axi_b_if                   (axi_b_if),
+        .axi_aw_if              (axi_aw_if),
+        .axi_w_if               (axi_w_if),
+        .axi_b_if               (axi_b_if),
 
-        .axi_aw2_if                 (axi_aw_internal_if),
-        .dfi_wr_if                  (dfi_wr_if)
+        .axi_aw2_if             (axi_aw_internal_if),
+        .dfi_wr_if              (dfi_wr_if)
     );
 
-    SAL_ADDR_DECODER                u_decoder
+    SAL_ADDR_DECODER            u_decoder
     (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
+        .clk                    (clk),
+        .rst_n                  (rst_n),
 
-        .axi_ar_if                  (axi_ar_if),
-        .axi_aw_if                  (axi_aw_internal_if),
+        .axi_ar_if              (axi_ar_if),
+        .axi_aw_if              (axi_aw_internal_if),
 
-        .req_if_arr                 (bk_req_if_arr)
+        .req_if_arr             (bk_req_if_arr)
     );
 
     genvar geni;
@@ -79,51 +79,51 @@ module SAL_DDR_CTRL
         for (geni=0; geni<`DRAM_BK_CNT; geni=geni+1) begin  : BK
             SAL_BK_CTRL
             #(
-                .BK_ID                      (geni)
+                .BK_ID                  (geni)
             )
             u_bank_ctrl
             (
-                .clk                        (clk),
-                .rst_n                      (rst_n),
+                .clk                    (clk),
+                .rst_n                  (rst_n),
         
-                .timing_if                  (timing_if),
+                .timing_if              (timing_if),
         
-                .req_if                     (bk_req_if_arr[geni]),
-                .sched_if                   (bk_sched_if_arr[geni]),
+                .req_if                 (bk_req_if_arr[geni]),
+                .sched_if               (bk_sched_if_arr[geni]),
         
-                .ref_req_i                  (1'b0),
-                .ref_gnt_o                  ()
+                .ref_req_i              (1'b0),
+                .ref_gnt_o              ()
             );
         end
     endgenerate
 
-    SAL_SCHED                       u_sched
+    SAL_SCHED                   u_sched
     (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
+        .clk                    (clk),
+        .rst_n                  (rst_n),
 
-        .bk_sched_if_arr            (bk_sched_if_arr),
-        .sched_if                   (sched_if)
+        .bk_sched_if_arr        (bk_sched_if_arr),
+        .sched_if               (sched_if)
     );
 
-    SAL_CTRL_ENCODER                u_encoder
+    SAL_CTRL_ENCODER            u_encoder
     (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
+        .clk                    (clk),
+        .rst_n                  (rst_n),
 
-        .sched_if                   (sched_if),
-        .dfi_ctrl_if                (dfi_ctrl_if)
+        .sched_if               (sched_if),
+        .dfi_ctrl_if            (dfi_ctrl_if)
     );
 
-    SAL_RD_CTRL                     u_rd_ctrl
+    SAL_RD_CTRL                 u_rd_ctrl
     (
-        .clk                        (clk),
-        .rst_n                      (rst_n),
+        .clk                    (clk),
+        .rst_n                  (rst_n),
 
-        .timing_if                  (timing_if),
-        .sched_if                   (sched_if),
-        .dfi_rd_if                  (dfi_rd_if),
-        .axi_r_if                   (axi_r_if)
+        .timing_if              (timing_if),
+        .sched_if               (sched_if),
+        .dfi_rd_if              (dfi_rd_if),
+        .axi_r_if               (axi_r_if)
     );
 
 endmodule // SAL_DDR_CTRL

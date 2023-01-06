@@ -45,19 +45,20 @@ interface REQ_IF
 );
     logic                       valid;
     logic                       ready;
-    logic   [`AXI_ID_WIDTH-1:0] id;
+    logic                       wr;
+    axi_id_t                    id;
+    axi_len_t                   len;
+    seq_num_t                   seq_num;
     logic   [`DRAM_RA_WIDTH-1:0]ra;
     logic   [`DRAM_CA_WIDTH-1:0]ca;
-    logic                       wr;
-    logic   [`AXI_LEN_WIDTH-1:0]len;
 
     // synthesizable, for design
     modport SRC (
-        output                  valid, id, ra, ca, wr, len,
+        output                  valid, wr, id, len, seq_num, ra, ca,
         input                   ready
     );
     modport DST (
-        input                   valid, id, ra, ca, wr, len,
+        input                   valid, wr, id, len, seq_num, ra, ca,
         output                  ready
     );
 
@@ -66,21 +67,21 @@ interface REQ_IF
     clocking SRC_CB @(posedge clk);
         default input #0.1 output #0.1; // sample -0.1ns before posedge
                                         // drive 0.1ns after posedge
-        output                  valid, id, ra, ca, wr, len;
+        output                  valid, wr, id, len, seq_num, ra, ca;
         input                   ready;
     endclocking
 
     clocking DST_CB @(posedge clk);
         default input #0.1 output #0.1; // sample -0.1ns before posedge
                                         // drive 0.1ns after posedge
-        input                   valid, id, ra, ca, wr, len;
+        input                   valid, wr, id, len, seq_num, ra, ca;
         output                  ready;
     endclocking
 
     clocking MON_CB @(posedge clk);
         default input #0.1 output #0.1; // sample -0.1ns before posedge
                                         // drive 0.1ns after posedge
-        input                   valid, id, ra, ca, wr, len;
+        input                   valid, wr, id, len, seq_num, ra, ca;
         input                   ready;
     endclocking
 
@@ -89,24 +90,29 @@ interface REQ_IF
 
     function void init();   // does not consume timing
         valid                       = 1'b0;
+        wr                          = 'hx;
+        len                         = 'hx;
+        seq_num                     = 'hx;
         id                          = 'hx;
         ra                          = 'hx;
         ca                          = 'hx;
-        wr                          = 'hx;
-        len                         = 'hx;
     endfunction
 
-    task automatic transfer(  input [`AXI_ID_WIDTH-1:0]     id,
-                              input [`DRAM_RA_WIDTH-1:0]    ra,
-                              input [`DRAM_CA_WIDTH-1:0]    ca,
-                              input                         wr,
-                              input [`AXI_LEN_WIDTH-1:0]    len);
+    task automatic transfer(
+        input                       wr,
+        input   axi_id_t            id,
+        input   axi_len_t           len,
+        input   seq_num_t           seq_num,
+        input [`DRAM_RA_WIDTH-1:0]  ra,
+        input [`DRAM_CA_WIDTH-1:0]  ca
+    );
         SRC_CB.valid                <= 1'b1;
+        SRC_CB.wr                   <= wr;
         SRC_CB.id                   <= id;
+        SRC_CB.len                  <= len;
+        SRC_CB.seq_num              <= seq_num;
         SRC_CB.ra                   <= ra;
         SRC_CB.ca                   <= ca;
-        SRC_CB.wr                   <= wr;
-        SRC_CB.len                  <= len;
         @(posedge clk);
         while (ready!=1'b1) begin
             @(posedge clk);
