@@ -158,15 +158,15 @@ module SAL_TB_TOP;
         repeat (250) @(posedge clk);
     endtask
 
-    logic       [`AXI_ID_WIDTH-1:0]     simple_id;
-    assign  simple_id                   = 'd0;
+    axi_id_t                        simple_id;
+    assign  simple_id               = 'd0;
 
-    task automatic write32B(
-        input [`AXI_ADDR_WIDTH-1:0] addr,
-        input [255:0]               data
+    task automatic write32B (
+        input   axi_addr_t          addr,
+        input   [255:0]             data
     );
-        logic   [`AXI_ID_WIDTH-1:0] rid;
-        logic   [1:0]               rresp;
+        axi_id_t                    rid;
+        axi_resp_t                  rresp;
 
         // drive to AW and W
         fork
@@ -188,11 +188,11 @@ module SAL_TB_TOP;
     endtask
 
     task automatic read32B(
-        input [`AXI_ADDR_WIDTH-1:0] addr,
-        output [255:0]              data
+        input   axi_addr_t          addr,
+        output  [255:0]             data
     );
-        logic   [`AXI_ID_WIDTH-1:0] rid;
-        logic   [1:0]               rresp;
+        axi_id_t                    rid;
+        axi_resp_t                  rresp;
         logic                       rlast;
 
         // drive to AR
