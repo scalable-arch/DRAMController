@@ -77,6 +77,7 @@ typedef logic   [`AXI_RESP_WIDTH-1:0]           axi_resp_t;
 `define T_RTP_WIDTH                             3
 `define T_RTP_VALUE_M1                          (`ROUND_UP(TRTP)-1)
 `define T_WTP_WIDTH                             4
+// based on figure 63 (WRITE-to-PRECHARGE) in Micron DDR2 datasheet
 `define T_WTP_VALUE_M1                          (`WRITE_LATENCY+`BURST_LENGTH/2+`ROUND_UP(TWR)-1)
 `define ROW_OPEN_WIDTH                          6
 `define ROW_OPEN_CNT                            31
@@ -88,10 +89,10 @@ typedef logic   [`AXI_RESP_WIDTH-1:0]           axi_resp_t;
 `define T_CCD_WIDTH                             2
 `define T_CCD_VALUE_M1                          (TCCD-1)      // in clock cycles
 `define T_WTR_WIDTH                             8
-// table 40 in Micron DDR2 datasheet
+// based on table 40 in Micron DDR2 datasheet
 `define T_WTR_VALUE_M1                          (`CAS_LATENCY -1 + `BURST_LENGTH/2 + `ROUND_UP(TWTR)-1)
 `define T_RTW_WIDTH                             8
-// table 40 in Micron DDR2 datasheet
+// based on table 40 in Micron DDR2 datasheet
 `define T_RTW_VALUE_M1                          (`BURST_LENGTH/2 + 2-1)
 `define T_FAW_VALUE                             (`ROUND_UP(TFAW))
 
