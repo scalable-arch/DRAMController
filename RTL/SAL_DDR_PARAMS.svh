@@ -44,41 +44,45 @@ typedef logic   [`AXI_BURST_WIDTH-1:0]  axi_burst_t;
 typedef logic   [`AXI_RESP_WIDTH-1:0]   axi_resp_t;
 
 //----------------------------------------------------------
-// MC internal interface
+// DRAM interface
 //----------------------------------------------------------
-`define MC_BA_WIDTH                     2
-`define MC_RA_WIDTH                     13
-`define MC_CA_WIDTH                     8
+// REAL values from ddr2_model_parameters.vh
+`include "ddr2_model_parameters.vh"
+
+`define DDR_CS_WIDTH                    2
+`define DDR_BA_WIDTH                    BA_BITS
+`define DDR_RA_WIDTH                    ROW_BITS
+`define DDR_CA_WIDTH                    COL_BITS
+`define DDR_ADDR_WIDTH                  ADDR_BITS
+
+//----------------------------------------------------------
+// DRAM controller internal interface
+//----------------------------------------------------------
+// This has to cover the maximum DRAM capacity/capabilities
+`define DRAM_BA_WIDTH                   `DDR_BA_WIDTH
+`define DRAM_RA_WIDTH                   `DDR_RA_WIDTH
+`define DRAM_CA_WIDTH                   `DDR_CA_WIDTH
+
+`define DRAM_BK_CNT                     (1<<`DRAM_BA_WIDTH)
+
+typedef logic   [`DRAM_BA_WIDTH-1:0]      dram_ba_t;
+typedef logic   [`DRAM_RA_WIDTH-1:0]      dram_ra_t;
+typedef logic   [`DRAM_CA_WIDTH-1:0]      dram_ca_t;
 
 `define MC_SEQ_NUM_WIDTH                $clog2(`AXI_READ_ACCEPTANCE_CAP)
-
-typedef logic   [`MC_BA_WIDTH-1:0]      mc_ba_t;
-typedef logic   [`MC_RA_WIDTH-1:0]      mc_ra_t;
-typedef logic   [`MC_CA_WIDTH-1:0]      mc_ca_t;
 typedef logic   [`MC_SEQ_NUM_WIDTH-1:0] seq_num_t;
 
+//----------------------------------------------------------
 // DFI interface
+//----------------------------------------------------------
 `define DFI_CS_WIDTH                    2
 `define DFI_BA_WIDTH                    3
 `define DFI_ADDR_WIDTH                  14
 
 //----------------------------------------------------------
-// DRAM interface
-//----------------------------------------------------------
-`define DRAM_CS_WIDTH                   `DFI_CS_WIDTH
-`define DRAM_BA_WIDTH                   `DFI_BA_WIDTH
-`define DRAM_RA_WIDTH                   13
-`define DRAM_CA_WIDTH                   8
-
-`define DRAM_ADDR_WIDTH                 `DFI_ADDR_WIDTH
-`define DRAM_BK_CNT                     (1<<`DRAM_BA_WIDTH)
-
-//----------------------------------------------------------
 // DRAM timing parameters
 //----------------------------------------------------------
 `define ROUND_UP(x)                     ((x+int'(`CLK_PERIOD*1000)-1)/(int'(`CLK_PERIOD*1000)))
-
-`include "ddr2_model_parameters.vh"
 
 `define BURST_LENGTH                    4
 
@@ -125,22 +129,22 @@ typedef logic   [`MC_SEQ_NUM_WIDTH-1:0] seq_num_t;
 //            row               offset (3-bit for 64-DQ (or 8B))
 //                      --------
 //                       column (8-bit)
-function [`DRAM_BA_WIDTH-1:0] get_dram_ba(
+function dram_ba_t get_dram_ba(
     input   axi_addr_t          addr
 );
-    return addr[(`DRAM_CA_WIDTH+3)+:`DRAM_BA_WIDTH];
+    return addr[(`DDR_CA_WIDTH+3)+:`DDR_BA_WIDTH];
 endfunction
 
-function [`DRAM_RA_WIDTH-1:0] get_dram_ra(
+function dram_ra_t get_dram_ra(
     input   axi_addr_t          addr
 );
-    return addr[(`DRAM_BA_WIDTH+`DRAM_CA_WIDTH+3)+:`DRAM_RA_WIDTH];
+    return addr[(`DDR_BA_WIDTH+`DDR_CA_WIDTH+3)+:`DDR_RA_WIDTH];
 endfunction
 
-function [`DRAM_CA_WIDTH-1:0] get_dram_ca(
+function dram_ca_t get_dram_ca(
     input   axi_addr_t          addr
 );
-    return addr[`DRAM_CA_WIDTH+2:3];
+    return addr[`DDR_CA_WIDTH+2:3];
 endfunction
 
 `endif /* __SAL_DDR_TYPEDEF_SVH__ */

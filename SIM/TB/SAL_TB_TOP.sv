@@ -36,12 +36,12 @@ module SAL_TB_TOP;
     wire                            ddr_ck;
     wire                            ddr_ck_n;
     wire                            ddr_cke;
-    wire    [`DRAM_CS_WIDTH-1:0]    ddr_cs_n;
+    wire    [`DDR_CS_WIDTH-1:0]     ddr_cs_n;
     wire                            ddr_ras_n;
     wire                            ddr_cas_n;
     wire                            ddr_we_n;
-    wire    [`DRAM_BA_WIDTH-1:0]    ddr_ba;
-    wire    [`DRAM_ADDR_WIDTH-1:0]  ddr_addr;
+    wire    [`DDR_BA_WIDTH-1:0]     ddr_ba;
+    wire    [`DDR_ADDR_WIDTH-1:0]   ddr_addr;
     wire                            ddr_odt;
 
     wire    [63:0]                  ddr_dq;

@@ -15,12 +15,12 @@ module DDRPHY
     output  logic                   ck,
     output  logic                   ck_n,
     output  logic                   cke,
-    output  logic   [`DRAM_CS_WIDTH-1:0]    cs_n,
+    output  logic   [`DDR_CS_WIDTH-1:0]    cs_n,
     output  logic                   ras_n,
     output  logic                   cas_n,
     output  logic                   we_n,
-    output  logic   [`DRAM_BA_WIDTH-1:0]    ba,
-    output  logic   [`DRAM_ADDR_WIDTH-1:0]  addr,
+    output  logic   [`DDR_BA_WIDTH-1:0]    ba,
+    output  logic   [`DDR_ADDR_WIDTH-1:0]  addr,
     output  logic                   odt,
 
     //data

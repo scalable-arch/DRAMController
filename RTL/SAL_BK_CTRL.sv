@@ -24,7 +24,7 @@ module SAL_BK_CTRL
 );
 
     // current row address
-    logic   [`DRAM_RA_WIDTH-1:0]cur_ra,             cur_ra_n;
+    dram_ra_t                   cur_ra,             cur_ra_n;
     logic   [5:0]               cnt,                cnt_n;
 
     wire                        is_t_rc_met,

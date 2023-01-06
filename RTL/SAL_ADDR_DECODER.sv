@@ -19,9 +19,9 @@ module SAL_ADDR_DECODER
     logic                       wr;
     axi_id_t                    id;
     axi_len_t                   len;
-    logic   [`DRAM_BA_WIDTH-1:0]ba;
-    logic   [`DRAM_RA_WIDTH-1:0]ra;
-    logic   [`DRAM_CA_WIDTH-1:0]ca;
+    dram_ba_t                   ba;
+    dram_ra_t                   ra;
+    dram_ca_t                   ca;
 
     seq_num_t                   seq_num,    rd_seq_num, wr_seq_num;
 

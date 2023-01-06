@@ -20,10 +20,10 @@ module SAL_SCHED
     wire    [`DRAM_BK_CNT-1:0]  wr_req_arr;
     wire    [`DRAM_BK_CNT-1:0]  pre_req_arr;
     wire    [`DRAM_BK_CNT-1:0]  ref_req_arr;
-    wire    [`DRAM_RA_WIDTH-1:0]ra_arr [`DRAM_BK_CNT];
-    wire    [`DRAM_CA_WIDTH-1:0]ca_arr [`DRAM_BK_CNT];
-    wire    [`AXI_ID_WIDTH-1:0] id_arr [`DRAM_BK_CNT];
-    wire    [`AXI_LEN_WIDTH-1:0]len_arr [`DRAM_BK_CNT];
+    wire    dram_ra_t           ra_arr [`DRAM_BK_CNT];
+    wire    dram_ca_t           ca_arr [`DRAM_BK_CNT];
+    wire    axi_id_t            id_arr [`DRAM_BK_CNT];
+    wire    axi_len_t           len_arr [`DRAM_BK_CNT];
 
     logic   [`DRAM_BK_CNT-1:0]  act_gnt_arr;
     logic   [`DRAM_BK_CNT-1:0]  rd_gnt_arr;

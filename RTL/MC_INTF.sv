@@ -49,8 +49,8 @@ interface REQ_IF
     axi_id_t                    id;
     axi_len_t                   len;
     seq_num_t                   seq_num;
-    logic   [`DRAM_RA_WIDTH-1:0]ra;
-    logic   [`DRAM_CA_WIDTH-1:0]ca;
+    dram_ra_t                   ra;
+    dram_ca_t                   ca;
 
     // synthesizable, for design
     modport SRC (
@@ -103,8 +103,8 @@ interface REQ_IF
         input   axi_id_t            id,
         input   axi_len_t           len,
         input   seq_num_t           seq_num,
-        input [`DRAM_RA_WIDTH-1:0]  ra,
-        input [`DRAM_CA_WIDTH-1:0]  ca
+        dram_ra_t                   ra,
+        dram_ca_t                   ca
     );
         SRC_CB.valid                <= 1'b1;
         SRC_CB.wr                   <= wr;
@@ -138,11 +138,11 @@ interface SCHED_IF ();
     logic                       wr_gnt;
     logic                       pre_gnt;
     logic                       ref_gnt;
-    logic   [`DRAM_BA_WIDTH-1:0]ba;
-    logic   [`DRAM_RA_WIDTH-1:0]ra;
-    logic   [`DRAM_CA_WIDTH-1:0]ca;
-    logic   [`AXI_ID_WIDTH-1:0] id;
-    logic   [`AXI_LEN_WIDTH-1:0]len;
+    dram_ba_t                   ba;
+    dram_ra_t                   ra;
+    dram_ca_t                   ca;
+    axi_id_t                    id;
+    axi_len_t                   len;
 
     // synthesizable, for design
     modport SRC (
