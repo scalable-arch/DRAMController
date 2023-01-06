@@ -171,16 +171,16 @@ module SAL_TB_TOP;
         // drive to AW and W
         fork
             begin
-                axi_aw_if.transfer(simple_id, addr, 'd1, `AXI_SIZE_128, `AXI_BURST_INCR);
+                axi_aw_if.send(simple_id, addr, 'd1, `AXI_SIZE_128, `AXI_BURST_INCR);
             end
             begin
-                axi_w_if.transfer(simple_id, data[127:0], 16'hFFFF, 1'b0);
-                axi_w_if.transfer(simple_id, data[255:128], 16'hFFFF, 1'b1);
+                axi_w_if.send(simple_id, data[127:0], 16'hFFFF, 1'b0);
+                axi_w_if.send(simple_id, data[255:128], 16'hFFFF, 1'b1);
             end
         join
 
         // receive from B
-        axi_b_if.receive(rid, rresp);
+        axi_b_if.recv(rid, rresp);
 
         // check responses
         if (rid!==simple_id) begin $display("ID mismatch (expected: %d, received: %d)", simple_id, rid); $finish; end
@@ -196,15 +196,15 @@ module SAL_TB_TOP;
         logic                       rlast;
 
         // drive to AR
-        axi_ar_if.transfer(simple_id, addr, 'd1, `AXI_SIZE_128, `AXI_BURST_INCR);
+        axi_ar_if.send(simple_id, addr, 'd1, `AXI_SIZE_128, `AXI_BURST_INCR);
 
         // receive from R
-        axi_r_if.receive(rid, data, rresp, rlast);
+        axi_r_if.recv(rid, data, rresp, rlast);
         if (rlast!==1'b0) begin $display("RLAST mismatch (expected: %d, received: %d)", 0, rlast); $finish; end
         if (rid!==simple_id) begin $display("ID mismatch (expected: %d, received: %d)", simple_id, rid); $finish; end
         if (rresp!==2'b00) begin $display("Non-OK response (received: %d)", rresp); $finish; end
 
-        axi_r_if.receive(rid, data, rresp, rlast);
+        axi_r_if.recv(rid, data, rresp, rlast);
         if (rlast!==1'b1) begin $display("RLAST mismatch (expected: %d, received: %d)", 1, rlast); $finish; end
         if (rid!==simple_id) begin $display("ID mismatch (expected: %d, received: %d)", simple_id, rid); $finish; end
         if (rresp!==2'b00) begin $display("Non-OK response (received: %d)", rresp); $finish; end
