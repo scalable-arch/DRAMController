@@ -8,7 +8,7 @@ module SAL_CFG
     input                       rst_n,
 
     // APB interface
-    APB_IF.DST                  apb_if,
+    APB_IF.SLV                  apb_if,
 
     // timing parameters
     TIMING_IF.SRC               timing_if
