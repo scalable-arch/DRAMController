@@ -77,7 +77,11 @@ module SAL_DDR_CTRL
 
     generate
         for (geni=0; geni<`DRAM_BK_CNT; geni=geni+1) begin  : BK
-            SAL_BK_CTRL                     u_bank_ctrl
+            SAL_BK_CTRL
+            #(
+                .BK_ID                      (geni)
+            )
+            u_bank_ctrl
             (
                 .clk                        (clk),
                 .rst_n                      (rst_n),

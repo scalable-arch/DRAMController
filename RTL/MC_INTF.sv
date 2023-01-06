@@ -11,6 +11,11 @@ interface TIMING_IF ();
     logic   [`T_RTP_WIDTH-1:0]  t_rtp_m1;
     logic   [`T_WTP_WIDTH-1:0]  t_wtp_m1;
     logic   [`ROW_OPEN_WIDTH-1:0]row_open_cnt;
+
+    logic   [`T_RCD_WIDTH-1:0]  t_rcd_m2;
+    logic   [`T_RP_WIDTH-1:0]   t_rp_m2;
+    logic   [`T_RFC_WIDTH-1:0]  t_rfc_m2;
+
     // inter-bank timing
     logic   [`T_RRD_WIDTH-1:0]  t_rrd_m1;
     logic   [`T_CCD_WIDTH-1:0]  t_ccd_m1;
@@ -18,15 +23,18 @@ interface TIMING_IF ();
     logic   [`T_RTW_WIDTH-1:0]  t_rtw_m1;
     logic   [3:0]               dfi_wren_lat;
     logic   [3:0]               dfi_rden_lat;
+    logic   [`BURST_CYCLE_WIDTH-1:0]burst_cycle_m2;
 
     // synthesizable, for design
     modport SRC (
         output                  t_rc_m1, t_rcd_m1, t_rp_m1, t_ras_m1, t_rfc_m1, t_rtp_m1, t_wtp_m1, row_open_cnt,
-                                t_rrd_m1, t_ccd_m1, t_wtr_m1, t_rtw_m1, dfi_wren_lat, dfi_rden_lat
+                                t_rcd_m2, t_rp_m2, t_rfc_m2,
+                                t_rrd_m1, t_ccd_m1, t_wtr_m1, t_rtw_m1, dfi_wren_lat, dfi_rden_lat, burst_cycle_m2
     );
     modport MON (
         input                   t_rc_m1, t_rcd_m1, t_rp_m1, t_ras_m1, t_rfc_m1, t_rtp_m1, t_wtp_m1, row_open_cnt,
-                                t_rrd_m1, t_ccd_m1, t_wtr_m1, t_rtw_m1, dfi_wren_lat, dfi_rden_lat
+                                t_rcd_m2, t_rp_m2, t_rfc_m2,
+                                t_rrd_m1, t_ccd_m1, t_wtr_m1, t_rtw_m1, dfi_wren_lat, dfi_rden_lat, burst_cycle_m2
     );
 endinterface
 

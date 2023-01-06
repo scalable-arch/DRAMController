@@ -80,6 +80,8 @@ typedef logic   [`AXI_RESP_WIDTH-1:0]           axi_resp_t;
 `define T_WTP_VALUE_M1                          4'b1000     // FIXME
 `define ROW_OPEN_WIDTH                          6
 `define ROW_OPEN_CNT                            31
+`define BURST_CYCLE_WIDTH                       2
+`define BURST_CYCLE_VALUE_M2                    (`BURST_LENGTH/2-2)
 
 `define T_RRD_WIDTH                             4
 `define T_RRD_VALUE_M1                          (`ROUND_UP(TRRD)-1)
