@@ -15,8 +15,23 @@ module SAL_BK_CTRL
 
     // request from the address decoder
     REQ_IF.DST                  req_if,
+
     // scheduling interface
-    SCHED_IF.SRC                sched_if,
+    output  logic               act_req_o,
+    output  logic               rd_req_o,
+    output  logic               wr_req_o,
+    output  logic               pre_req_o,
+    output  logic               ref_req_o,
+    output  dram_ra_t           ra_o,
+    output  dram_ca_t           ca_o,
+    output  axi_id_t            id_o,
+    output  axi_len_t           len_o,
+
+    input   wire                act_gnt_i,
+    input   wire                rd_gnt_i,
+    input   wire                wr_gnt_i,
+    input   wire                pre_gnt_i,
+    input   wire                ref_gnt_i,
 
     // per-bank auto-refresh requests
     input   wire                ref_req_i,
@@ -70,26 +85,25 @@ module SAL_BK_CTRL
         ref_gnt_o                   = 1'b0;
         req_if.ready                = 1'b0;
 
-        sched_if.act_req            = 1'b0;
-        sched_if.rd_req             = 1'b0;
-        sched_if.wr_req             = 1'b0;
-        sched_if.pre_req            = 1'b0;
-        sched_if.ref_req            = 1'b0;
-        sched_if.ba                 = BK_ID;
-        sched_if.ra                 = 'hx;
-        sched_if.ca                 = 'hx;
-        sched_if.id                 = 'hx;
-        sched_if.len                = 'hx;
+        act_req_o                   = 1'b0;
+        rd_req_o                    = 1'b0;
+        wr_req_o                    = 1'b0;
+        pre_req_o                   = 1'b0;
+        ref_req_o                   = 1'b0;
+        ra_o                        = 'hx;
+        ca_o                        = 'hx;
+        id_o                        = 'hx;
+        len_o                       = 'hx;
 
         case (state)
             S_IDLE: begin
                 if (req_if.valid) begin    // a new request came
                     // ACTIVATE command
                     if (is_t_rc_met) begin
-                        sched_if.act_req            = 1'b1;
-                        sched_if.ra                 = req_if.ra;
+                        act_req_o                   = 1'b1;
+                        ra_o                        = req_if.ra;
 
-                        if (sched_if.act_gnt) begin
+                        if (act_gnt_i) begin
                             cur_ra_n                    = req_if.ra;
                             cnt_n                       = timing_if.t_rcd_m2;
                             state_n                     = S_ACTIVATING;
@@ -99,8 +113,8 @@ module SAL_BK_CTRL
                 else if (ref_req_i) begin
                     // AUTO-REFRESH command
                     if (is_t_rc_met) begin
-                        sched_if.ref_req            = 1'b1;
-                        if (sched_if.ref_gnt) begin
+                        ref_req_o                   = 1'b1;
+                        if (ref_gnt_i) begin
                             ref_gnt_o                   = 1'b1;
                             cnt_n                       = timing_if.t_rfc_m2;
                             state_n                     = S_REFRESHING;
@@ -116,15 +130,15 @@ module SAL_BK_CTRL
             S_BANK_ACTIVE: begin
                 if (req_if.valid) begin
                     if (cur_ra == req_if.ra) begin // bank hit
-                        sched_if.ca                 = req_if.ca;
-                        sched_if.id                 = req_if.id;
-                        sched_if.len                = req_if.len;
+                        ca_o                        = req_if.ca;
+                        id_o                        = req_if.id;
+                        len_o                       = req_if.len;
 
                         if (req_if.wr) begin
                             // WRITE command
-                            sched_if.wr_req             = 1'b1;
+                            wr_req_o                    = 1'b1;
 
-                            if (sched_if.wr_gnt) begin
+                            if (wr_gnt_i) begin
                                 req_if.ready                = 1'b1;
                                 cnt_n                       = timing_if.burst_cycle_m2;
                                 state_n                     = S_WRITING;
@@ -132,9 +146,9 @@ module SAL_BK_CTRL
                         end
                         else begin
                             // READ command
-                            sched_if.rd_req             = 1'b1;
+                            rd_req_o                    = 1'b1;
 
-                            if (sched_if.rd_gnt) begin
+                            if (rd_gnt_i) begin
                                 req_if.ready                = 1'b1;
                                 cnt_n                       = timing_if.burst_cycle_m2;
                                 state_n                     = S_READING;
@@ -144,9 +158,9 @@ module SAL_BK_CTRL
                     else begin  // bank miss
                         if (is_t_ras_met & is_t_rtp_met & is_t_wtp_met) begin
                             // PRECHARGE command
-                            sched_if.pre_req            = 1'b1;
+                            pre_req_o                   = 1'b1;
 
-                            if (sched_if.pre_gnt) begin
+                            if (pre_gnt_i) begin
                                 cnt_n                       = timing_if.t_rp_m2;
                                 state_n                     = S_PRECHARGING;
                             end
@@ -156,9 +170,9 @@ module SAL_BK_CTRL
                 else begin  // no request
                     if (is_row_open_met & is_t_ras_met & is_t_rtp_met & is_t_wtp_met) begin
                         // PRECHARGE command
-                        sched_if.pre_req            = 1'b1;
+                        pre_req_o                   = 1'b1;
 
-                        if (sched_if.pre_gnt) begin
+                        if (pre_gnt_i) begin
                             cnt_n                       = timing_if.t_rp_m2;
                             state_n                     = S_PRECHARGING;
                         end
@@ -193,7 +207,7 @@ module SAL_BK_CTRL
         .clk                        (clk),
         .rst_n                      (rst_n),
 
-        .reset_cmd_i                (sched_if.act_gnt),
+        .reset_cmd_i                (act_gnt_i),
         .reset_value_i              (timing_if.t_rc_m1),
         .is_zero_o                  (is_t_rc_met)
     );
@@ -203,7 +217,7 @@ module SAL_BK_CTRL
         .clk                        (clk),
         .rst_n                      (rst_n),
 
-        .reset_cmd_i                (sched_if.act_gnt),
+        .reset_cmd_i                (act_gnt_i),
         .reset_value_i              (timing_if.t_ras_m1),
         .is_zero_o                  (is_t_ras_met)
     );
@@ -213,7 +227,7 @@ module SAL_BK_CTRL
         .clk                        (clk),
         .rst_n                      (rst_n),
 
-        .reset_cmd_i                (sched_if.rd_gnt),
+        .reset_cmd_i                (rd_gnt_i),
         .reset_value_i              (timing_if.t_rtp_m1),
         .is_zero_o                  (is_t_rtp_met)
     );
@@ -223,7 +237,7 @@ module SAL_BK_CTRL
         .clk                        (clk),
         .rst_n                      (rst_n),
 
-        .reset_cmd_i                (sched_if.wr_gnt),
+        .reset_cmd_i                (wr_gnt_i),
         .reset_value_i              (timing_if.t_wtp_m1),
         .is_zero_o                  (is_t_wtp_met)
     );
@@ -233,7 +247,7 @@ module SAL_BK_CTRL
         .clk                        (clk),
         .rst_n                      (rst_n),
 
-        .reset_cmd_i                (sched_if.rd_gnt | sched_if.wr_gnt),
+        .reset_cmd_i                (rd_gnt_i | wr_gnt_i),
         .reset_value_i              (timing_if.row_open_cnt),
         .is_zero_o                  (is_row_open_met)
     );
