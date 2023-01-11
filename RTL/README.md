@@ -4,11 +4,21 @@
 
 NOTE: need to send req_ready eariler to prevent head-of-line blocking and out-or-order processing.
 
+States:
+S_IDLE,
+S_ACTIVATING
+S_BANK_ACTIVE (i.e., BA)
+S_READING (i.e., RDI)
+S_WRITING
+S_PRECHARGING
+S_REFRESHING
+
+
 ```
 clk        : __--__--__--__--__--__--__--__--__--__--__--__--__--__--__--__--__--__--__
 req_valid  : _______------------------------___________________________________________
 req_ready  : ___________________________----___________________________________________
-state      : IDLE      | ACTIVATING    |BA |RDI| BA        |  PRECHARGING  | IDLE
+state      : IDLE      | ACTIVATING    |BA |RDI|     BA        |  PRECHARGING  | IDLE
 act_gnt    : _______----_______________________________________________________________
 rd_gnt     : ___________________________----___________________________________________
 pre_gnt    : _______________________________________________----_______________________
