@@ -4,14 +4,15 @@
 
 NOTE: need to send req_ready eariler to prevent head-of-line blocking and out-or-order processing.
 
-States:
-S_IDLE,
-S_ACTIVATING
-S_BANK_ACTIVE (i.e., BA)
-S_READING (i.e., RDI)
-S_WRITING
-S_PRECHARGING
-S_REFRESHING
+States: Mimics the state machine in the Micron datasheet (can be easily optimzied)
+
+- IDLE
+- ACTIVATING
+- BANK_ACTIVE (BA) in the following timing diagram)
+- READING (RDI in the following timing diagram)
+- WRITING
+- PRECHARGING
+- REFRESHING
 
 
 ```
