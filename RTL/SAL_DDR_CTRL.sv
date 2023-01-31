@@ -39,6 +39,8 @@ module SAL_DDR_CTRL
     dram_ca_t                   ca_arr[`DRAM_BK_CNT];
     axi_id_t                    id_arr[`DRAM_BK_CNT];
     axi_len_t                   len_arr[`DRAM_BK_CNT];
+    seq_num_t                   seq_num_arr[`DRAM_BK_CNT];
+    
     // grants to bank controllers
     wire    [`DRAM_BK_CNT-1:0]  act_gnt_arr;
     wire    [`DRAM_BK_CNT-1:0]  rd_gnt_arr;
@@ -114,6 +116,7 @@ module SAL_DDR_CTRL
                 .ca_o                   (ca_arr[geni]),
                 .id_o                   (id_arr[geni]),
                 .len_o                  (len_arr[geni]),
+                .seq_num_o              (seq_num_arr[geni]),
 
                 .act_gnt_i              (act_gnt_arr[geni]),
                 .rd_gnt_i               (rd_gnt_arr[geni]),
@@ -131,6 +134,8 @@ module SAL_DDR_CTRL
     (
         .clk                    (clk),
         .rst_n                  (rst_n),
+        
+        .timing_if              (timing_if),
 
         .act_req_arr            (act_req_arr),
         .rd_req_arr             (rd_req_arr),
@@ -141,6 +146,7 @@ module SAL_DDR_CTRL
         .ca_arr                 (ca_arr),
         .id_arr                 (id_arr),
         .len_arr                (len_arr),
+        .seq_num_arr            (seq_num_arr),
 
         .act_gnt_arr            (act_gnt_arr),
         .rd_gnt_arr             (rd_gnt_arr),
